@@ -2,10 +2,9 @@ import type { UUID } from 'node:crypto';
 import type {
   FastifyInstance,
   FastifyRequest,
-  FastifyServerOptions,
   RequestGenericInterface,
 } from 'fastify';
-import { Characters } from '../lib/character.js';
+import { Character } from '../lib/character.js';
 
 interface characterRequest extends RequestGenericInterface {
   Querystring: {
@@ -13,12 +12,9 @@ interface characterRequest extends RequestGenericInterface {
   };
 }
 
-async function characters(
-  fastify: FastifyInstance,
-  opts: FastifyServerOptions,
-) {
+async function characters(fastify: FastifyInstance) {
   fastify.post('/characters', async (req, reply) => {
-    const character = Characters.getInstance().generateRandomCharacter();
+    const character = Character.generateRandomCharacter();
     return character;
   });
 
@@ -26,7 +22,7 @@ async function characters(
     '/characters',
     async (req: FastifyRequest<characterRequest>, reply) => {
       const characterId = req.query.characterId as UUID;
-      const character = Characters.getInstance().getCharacter(characterId);
+      const character = Character.getCharacter(characterId);
       if (!character) {
         return reply.status(404).send({ error: 'Character not found' });
       }

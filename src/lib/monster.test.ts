@@ -1,6 +1,6 @@
 import { strict as assert } from 'node:assert';
 import { suite, test } from 'node:test';
-import { Monster } from './monsters.js';
+import { Monster } from './monster.js';
 
 suite('Monster Tests', () => {
   test('Monster constructor assigns a UUID', () => {

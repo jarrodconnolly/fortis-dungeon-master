@@ -9,11 +9,7 @@
     "name": "Jarrod Connolly",
     "email": "jarrod.connolly@gmail.com"
   },
-  "keywords": [
-    "fortis",
-    "dungeon",
-    "master"
-  ],
+  "keywords": ["fortis", "dungeon", "master"],
   "license": "MIT",
   "engines": {
     "node": ">=22.15.1"
@@ -22,7 +18,7 @@
     "biome": "biome check",
     "start": "tsx src/index.ts",
     "watch": "tsx --watch src/index.ts",
-    "test": "tsx --test"
+    "test": "NODE_ENV=test tsx --test"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
@@ -32,6 +28,7 @@
   },
   "dependencies": {
     "@faker-js/faker": "9.8.0",
-    "fastify": "5.3.3"
+    "fastify": "5.3.3",
+    "lowdb": "7.0.1"
   }
 }

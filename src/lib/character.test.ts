@@ -1,42 +1,20 @@
 import { strict as assert } from 'node:assert';
 import { suite, test } from 'node:test';
-import { Character, Characters } from './character.js';
+import { Character } from './character.js';
 
-suite('Character and Characters Tests', () => {
-  test('Character constructor assigns a UUID', () => {
-    const character = new Character();
-    assert.ok(character.characterId, 'characterId should be assigned');
+suite('Character Tests', () => {
+  test('Character returns valid JSON object', async () => {
+    const character = Character.generateRandomCharacter();
+    const obj = character.toJSON();
+    assert.ok(typeof obj.name === 'string');
+    assert.ok(typeof obj.level === 'number');
+    assert.ok(typeof obj.characterClass === 'string');
+    assert.ok(typeof obj.Strength === 'number');
+    await Character.saveCharacter(character);
   });
 
-  test('Character toString returns valid JSON string', () => {
-    const character = new Character();
-    character.name = 'Test Name';
-    character.level = 1;
-    character.characterClass = 'Wizard';
-    character.Strength = 10;
-    character.Dexterity = 10;
-    character.Constitution = 10;
-    character.Intelligence = 10;
-    character.Wisdom = 10;
-    character.Charisma = 10;
-
-    const str = character.toString();
-    const obj = JSON.parse(str);
-    assert.equal(obj.name, 'Test Name');
-    assert.equal(obj.level, 1);
-    assert.equal(obj.characterClass, 'Wizard');
-    assert.equal(obj.Strength, 10);
-  });
-
-  test('Characters.getInstance returns a singleton', () => {
-    const a = Characters.getInstance();
-    const b = Characters.getInstance();
-    assert.equal(a, b, 'Should return the same instance');
-  });
-
-  test('Characters.generateRandomCharacter creates a valid character', () => {
-    const chars = Characters.getInstance();
-    const character = chars.generateRandomCharacter();
+  test('Character.generateRandomCharacter creates a valid character', () => {
+    const character = Character.generateRandomCharacter();
     assert.ok(character.name, 'Character should have a name');
     assert.ok(
       character.level >= 1 && character.level <= 5,
@@ -72,10 +50,10 @@ suite('Character and Characters Tests', () => {
     );
   });
 
-  test('Characters.getCharacter retrieves the correct character', () => {
-    const chars = Characters.getInstance();
-    const character = chars.generateRandomCharacter();
-    const fetched = chars.getCharacter(character.characterId);
-    assert.equal(fetched, character, 'Should retrieve the same character');
+  test('Character.getCharacter retrieves the correct character', async () => {
+    const character = Character.generateRandomCharacter();
+    await Character.saveCharacter(character);
+    const fetched = await Character.getCharacter(character.characterId);
+    assert.deepEqual(fetched, character, 'Should retrieve the same character');
   });
 });

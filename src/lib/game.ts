@@ -1,60 +1,55 @@
 import { randomUUID } from 'node:crypto';
 import type { UUID } from 'node:crypto';
-import type { Character } from './character.js';
-import { Characters } from './character.js';
-import { Monster } from './monsters.js';
+import { Character } from './character.js';
+import { getGameById } from './db.js';
+import { Monster } from './monster.js';
 import { Treasure } from './treasure.js';
 
-class Games {
-  private static instance: Games;
-  private games: Game[];
+class Wall {
+  x!: number;
+  y!: number;
 
-  private constructor() {
-    this.games = [];
-  }
-
-  public static getInstance(): Games {
-    if (!Games.instance) {
-      Games.instance = new Games();
-    }
-    return Games.instance;
-  }
-
-  public createGame(characterId: UUID): Game {
-    const character = Characters.getInstance().getCharacter(characterId);
-    if (!character) {
-      throw new Error(`Character with ID ${characterId} does not exist.`);
-    }
-    const game = new Game(character);
-    this.games.push(game);
-    return game;
-  }
-
-  public getGame(gameId: UUID): Game | undefined {
-    return this.games.find((game) => game.gameId === gameId);
+  constructor(x: number, y: number) {
+    this.x = x;
+    this.y = y;
   }
 }
 
 class Game {
   gameId: UUID;
-  character: Character;
+  characterId!: UUID;
   treasures: Treasure[] = [];
   monsters: Monster[] = [];
+  walls: Wall[] = [];
   private static readonly ROOM_HEIGHT = 20;
   private static readonly ROOM_WIDTH = 20;
   private static readonly TREASURE_COUNT = 8;
   private static readonly MONSTER_COUNT = 5;
 
-  roomMap: string[][] = Array.from({ length: Game.ROOM_HEIGHT }, () =>
-    Array(Game.ROOM_WIDTH).fill(' '),
-  );
-
-  constructor(character: Character) {
+  private constructor() {
     this.gameId = randomUUID();
-    this.character = character;
-    this.createRoomMap();
-    this.createMonsters();
-    this.createTreasures();
+  }
+
+  public static async getGame(gameId: UUID): Promise<Game | null> {
+    const gameData = await getGameById(gameId);
+    if (!gameData) {
+      throw new Error(`Game with ID ${gameId} does not exist.`);
+    }
+    const game = new Game();
+    Object.assign(game, gameData);
+    return game;
+  }
+
+  public static async createGame(characterId: UUID): Promise<Game> {
+    const character = await Character.getCharacter(characterId);
+    if (!character) {
+      throw new Error(`Character with ID ${characterId} does not exist.`);
+    }
+    const game = new Game();
+    game.characterId = characterId;
+    game.createRoomMap();
+    game.createMonsters();
+    game.createTreasures();
 
     // Move the character to a random start position at one edge of the map
     const edges = [
@@ -70,9 +65,9 @@ class Game {
       }, // Right edge
     ];
     const start = edges[Math.floor(Math.random() * edges.length)];
-    this.character.x = start.x;
-    this.character.y = start.y;
-    this.roomMap[start.y][start.x] = 'C';
+    character.x = start.x;
+    character.y = start.y;
+    return game;
   }
 
   private createMonsters() {
@@ -81,7 +76,6 @@ class Game {
       const monster = new Monster();
       monster.x = Math.floor(Math.random() * (Game.ROOM_WIDTH - 2)) + 1; // Ensure monster is not on the wall
       monster.y = Math.floor(Math.random() * (Game.ROOM_HEIGHT - 2)) + 1;
-      this.roomMap[monster.y][monster.x] = 'M'; // Place monster on the map
       this.monsters.push(monster);
     }
   }
@@ -92,7 +86,6 @@ class Game {
       const treasure = new Treasure();
       treasure.x = Math.floor(Math.random() * (Game.ROOM_WIDTH - 2)) + 1; // Ensure treasure is not on the wall
       treasure.y = Math.floor(Math.random() * (Game.ROOM_HEIGHT - 2)) + 1;
-      this.roomMap[treasure.y][treasure.x] = 'T'; // Place treasure on the map
       this.treasures.push(treasure);
     }
   }
@@ -107,27 +100,24 @@ class Game {
           j === 0 ||
           j === Game.ROOM_WIDTH - 1
         ) {
-          this.roomMap[i][j] = '#'; // Wall
+          this.walls.push(new Wall(j, i));
         } else if (Math.random() < 0.2) {
           // 20% chance to place a wall
-          this.roomMap[i][j] = '#'; // Wall
-        } else {
-          this.roomMap[i][j] = '.'; // Floor
+          this.walls.push(new Wall(j, i));
         }
       }
     }
   }
 
   public toJSON(): object {
-    const map = this.roomMap.map((row) => row.join('')).join('\n');
     return {
       gameId: this.gameId,
-      character: this.character,
+      characterId: this.characterId,
       treasures: this.treasures,
       monsters: this.monsters,
-      roomMap: map,
+      walls: this.walls,
     };
   }
 }
 
-export { Games, Game };
+export { Game };

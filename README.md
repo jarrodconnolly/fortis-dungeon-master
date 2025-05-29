@@ -9,7 +9,7 @@ Fortis Dungeon Master is a Typescript API which implements a dungeon style game 
 - Character creation and management
 - Dungeon exploration
 - Combat with monsters
-- In-memory data storage for fast access
+- Persistent data storage using [Lowdb](https://github.com/typicode/lowdb)
 - Basic game mechanics and rules
 - Simple RESTful API for interaction
 - Basic error handling and validation

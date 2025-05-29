@@ -1,6 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import type { UUID } from 'node:crypto';
 import { faker } from '@faker-js/faker';
+import type { CharacterDB } from './db.js';
+import { getCharacterById, saveCharacter } from './db.js';
 
 const standardStatsArray = [15, 14, 13, 12, 10, 8];
 
@@ -22,8 +24,8 @@ enum CharacterClass {
 class Character {
   characterId: UUID;
   name!: string;
-  x: number;
-  y: number;
+  x!: number;
+  y!: number;
   level!: number;
   hp!: number;
   characterClass!: string;
@@ -34,49 +36,45 @@ class Character {
   Wisdom!: number;
   Charisma!: number;
 
-  constructor() {
-    this.characterId = randomUUID();
-    this.x = 0;
-    this.y = 0;
-  }
-
-  public toString(): string {
-    return JSON.stringify(
-      {
-        characterId: this.characterId,
-        name: this.name,
-        level: this.level,
-        hp: this.hp,
-        characterClass: this.characterClass,
-        Strength: this.Strength,
-        Dexterity: this.Dexterity,
-        Constitution: this.Constitution,
-        Intelligence: this.Intelligence,
-        Wisdom: this.Wisdom,
-        Charisma: this.Charisma,
-      },
-      null,
-      2,
-    );
-  }
-}
-
-class Characters {
-  private static instance: Characters;
-  private characters: Map<UUID, Character>;
-
   private constructor() {
-    this.characters = new Map<UUID, Character>();
+    this.characterId = randomUUID();
   }
 
-  public static getInstance(): Characters {
-    if (!Characters.instance) {
-      Characters.instance = new Characters();
+  public toJSON(): CharacterDB {
+    return {
+      characterId: this.characterId,
+      name: this.name,
+      x: this.x,
+      y: this.y,
+      level: this.level,
+      hp: this.hp,
+      characterClass: this.characterClass,
+      Strength: this.Strength,
+      Dexterity: this.Dexterity,
+      Constitution: this.Constitution,
+      Intelligence: this.Intelligence,
+      Wisdom: this.Wisdom,
+      Charisma: this.Charisma,
+    };
+  }
+
+  public static async getCharacter(
+    characterId: UUID,
+  ): Promise<Character | null> {
+    const characterData = await getCharacterById(characterId);
+    if (!characterData) {
+      return null;
     }
-    return Characters.instance;
+    const character = new Character();
+    Object.assign(character, characterData);
+    return character;
   }
 
-  public generateRandomCharacter(): Character {
+  public static async saveCharacter(character: Character): Promise<void> {
+    await saveCharacter(character.toJSON());
+  }
+
+  public static generateRandomCharacter(): Character {
     const name = `${faker.person.firstName()} ${faker.person.lastName()}`;
     const level = Math.floor(Math.random() * 5) + 1;
     const characterClass = Math.floor(
@@ -97,13 +95,8 @@ class Characters {
     character.Intelligence = stats[3];
     character.Wisdom = stats[4];
     character.Charisma = stats[5];
-    this.characters.set(character.characterId, character);
     return character;
-  }
-
-  public getCharacter(characterId: UUID): Character | undefined {
-    return this.characters.get(characterId);
   }
 }
 
-export { Character, Characters };
+export { Character };

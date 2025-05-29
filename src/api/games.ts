@@ -5,7 +5,7 @@ import type {
   FastifyServerOptions,
   RequestGenericInterface,
 } from 'fastify';
-import { Games } from '../lib/game.js';
+import { Game } from '../lib/game.js';
 
 interface getGameRequest extends RequestGenericInterface {
   Querystring: {
@@ -24,14 +24,14 @@ async function games(fastify: FastifyInstance, opts: FastifyServerOptions) {
     '/games',
     async (req: FastifyRequest<createGameRequest>, reply) => {
       const characterId = req.query.characterId;
-      const game = Games.getInstance().createGame(characterId);
+      const game = Game.createGame(characterId);
       return game;
     },
   );
 
   fastify.get('/games', async (req: FastifyRequest<getGameRequest>, reply) => {
     const gameId = req.query.gameId;
-    const game = Games.getInstance().getGame(gameId);
+    const game = await Game.getGame(gameId);
     if (!game) {
       return reply.status(404).send({ error: 'Game not found' });
     }

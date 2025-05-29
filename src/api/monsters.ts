@@ -5,7 +5,7 @@ import type {
   FastifyServerOptions,
   RequestGenericInterface,
 } from 'fastify';
-import { Games } from '../lib/game.js';
+import { Game } from '../lib/game.js';
 
 interface monsterListRequest extends RequestGenericInterface {
   Querystring: {
@@ -31,7 +31,7 @@ async function monsters(fastify: FastifyInstance, opts: FastifyServerOptions) {
     '/monsters',
     async (req: FastifyRequest<monsterListRequest>, reply) => {
       const gameId = req.query.gameId;
-      const game = Games.getInstance().getGame(gameId);
+      const game = await Game.getGame(gameId);
       if (!game) {
         return reply.status(404).send({ error: 'Game not found' });
       }
@@ -43,7 +43,7 @@ async function monsters(fastify: FastifyInstance, opts: FastifyServerOptions) {
     '/monsters/:monsterId',
     async (req: FastifyRequest<monsterUpdateRequest>, reply) => {
       const gameId = req.query.gameId;
-      const game = Games.getInstance().getGame(gameId);
+      const game = await Game.getGame(gameId);
       if (!game) {
         return reply.status(404).send({ error: 'Game not found' });
       }
