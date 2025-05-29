@@ -1,0 +1,37 @@
+{
+  "name": "fortis-dungeon-master",
+  "version": "1.0.0",
+  "description": "Dungeon Master REST API for Fortis",
+  "main": "index.js",
+  "type": "module",
+  "private": true,
+  "author": {
+    "name": "Jarrod Connolly",
+    "email": "jarrod.connolly@gmail.com"
+  },
+  "keywords": [
+    "fortis",
+    "dungeon",
+    "master"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=22.15.1"
+  },
+  "scripts": {
+    "biome": "biome check",
+    "start": "tsx src/index.ts",
+    "watch": "tsx --watch src/index.ts",
+    "test": "tsx --test"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "1.9.4",
+    "@types/node": "22.15.24",
+    "tsx": "4.19.4",
+    "typescript": "5.8.3"
+  },
+  "dependencies": {
+    "@faker-js/faker": "9.8.0",
+    "fastify": "5.3.3"
+  }
+}
