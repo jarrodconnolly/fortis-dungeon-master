@@ -1,5 +1,9 @@
 # Fortis Dungeon Master
 
+[![CI](https://github.com/jarrodconnolly/fortis-dungeon-master/actions/workflows/ci.yml/badge.svg)](https://github.com/jarrodconnolly/fortis-dungeon-master/actions/workflows/ci.yml)
+![Static Badge](https://img.shields.io/badge/Typescript-white?style=flat&logo=typescript)
+![Static Badge](https://img.shields.io/badge/Node.js-white?style=flat&logo=node.js)
+
 ## Overview
 
 Fortis Dungeon Master is a Typescript API which implements a dungeon style game server. It allows players to create and manage characters, explore dungeons, and engage in combat with monsters.
