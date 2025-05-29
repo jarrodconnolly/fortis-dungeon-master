@@ -1,8 +1,9 @@
 import Fastify from 'fastify';
 import api from './api/index.js';
+import { logger } from './lib/logger.js';
 
 const fastify = Fastify({
-  logger: true,
+  loggerInstance: logger,
 });
 
 fastify.register(api, { prefix: '/api' });
@@ -10,7 +11,7 @@ fastify.register(api, { prefix: '/api' });
 export function startServer() {
   fastify.listen({ port: 3000 }, (err, address) => {
     if (err) {
-      fastify.log.error(err);
+      logger.error(err);
       process.exit(1);
     }
   });

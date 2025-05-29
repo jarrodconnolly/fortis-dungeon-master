@@ -16,6 +16,44 @@ Fortis Dungeon Master is a Typescript API which implements a dungeon style game 
 - Basic unit tests for core functionality
 - Basic logging for debugging and monitoring
 
+## Design
+
+The project uses a modular structure that keeps core game logic, data models, and API routes organized for easy maintenance and understanding.
+
+The backend is built with Fastify and TypeScript and provides a RESTful API for interacting with the game.
+
+Data is stored and persisted with Lowdb, and TypeScript interfaces are used throughout to keep the code type safe.
+
+Each main feature, like character management, dungeon exploration, and combat, lives in its own module so the codebase is simple to extend and test.
+
+## Technology Stack
+
+- **Node.js**: JavaScript runtime for building the API.
+- **TypeScript**: Superset of JavaScript for type safety.
+- **Fastify**: Web framework for building the API.
+- **Lowdb**: Lightweight database for persistent storage.
+- **Unit Testing**: Using built-in Node.js testing.
+
+## Data Models
+
+The data models are defined using TypeScript interfaces, ensuring type safety and clarity. The main models include:
+
+### Game
+
+Represents a game session, including the player character, monsters, and treasures.
+
+### Character
+
+Represents a player character, including stats, inventory, and abilities.
+
+### Monster
+
+Represents monsters in the game, including stats and behaviors.
+
+### Treasure
+
+Represents treasures in the game, including properties and effects.
+
 ## Usage
 
 To start playing Fortis Dungeon Master, follow these steps:
@@ -49,8 +87,7 @@ npm start
 
 ## Known Issues
 
-- Some API endpoints may not be fully implemented.
-- Error handling could be improved for edge cases.
+The game is still in early development, and some features are not yet implemented.
 
 ## Changelog
 

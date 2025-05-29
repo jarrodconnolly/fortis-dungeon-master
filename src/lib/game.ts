@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { UUID } from 'node:crypto';
 import { Character } from './character.js';
 import { getGameById } from './db.js';
+import { logger } from './logger.js';
 import { Monster } from './monster.js';
 import { Treasure } from './treasure.js';
 
@@ -21,84 +22,156 @@ class Game {
   treasures: Treasure[] = [];
   monsters: Monster[] = [];
   walls: Wall[] = [];
-  private static readonly ROOM_HEIGHT = 20;
-  private static readonly ROOM_WIDTH = 20;
-  private static readonly TREASURE_COUNT = 8;
-  private static readonly MONSTER_COUNT = 5;
+  roomHeight: number;
+  roomWidth: number;
+  treasureCount: number;
+  monsterCount: number;
 
-  private constructor() {
+  constructor(
+    roomHeight = 20,
+    roomWidth = 20,
+    treasureCount = 8,
+    monsterCount = 5,
+  ) {
     this.gameId = randomUUID();
+    this.roomHeight = roomHeight;
+    this.roomWidth = roomWidth;
+    this.treasureCount = treasureCount;
+    this.monsterCount = monsterCount;
   }
 
   public static async getGame(gameId: UUID): Promise<Game | null> {
-    const gameData = await getGameById(gameId);
-    if (!gameData) {
+    const gameDataRaw = await getGameById(gameId);
+    if (!gameDataRaw) {
       throw new Error(`Game with ID ${gameId} does not exist.`);
     }
+    // Use default world parameters for loaded games
     const game = new Game();
-    Object.assign(game, gameData);
+    Object.assign(game, gameDataRaw);
     return game;
   }
 
-  public static async createGame(characterId: UUID): Promise<Game> {
+  public static async createGame(
+    characterId: UUID,
+    roomHeight = 20,
+    roomWidth = 20,
+    treasureCount = 8,
+    monsterCount = 5,
+  ): Promise<Game> {
+    logger.info(
+      `Creating game for character ${characterId} with dimensions ${roomWidth}x${roomHeight}, treasures: ${treasureCount}, monsters: ${monsterCount}`,
+    );
     const character = await Character.getCharacter(characterId);
     if (!character) {
       throw new Error(`Character with ID ${characterId} does not exist.`);
     }
-    const game = new Game();
+    const game = new Game(roomHeight, roomWidth, treasureCount, monsterCount);
     game.characterId = characterId;
     game.createRoomMap();
     game.createMonsters();
     game.createTreasures();
 
     // Move the character to a random start position at one edge of the map
-    const edges = [
-      { x: Math.floor(Math.random() * Game.ROOM_WIDTH), y: 0 }, // Top edge
-      {
-        x: Math.floor(Math.random() * Game.ROOM_WIDTH),
-        y: Game.ROOM_HEIGHT - 1,
-      }, // Bottom edge
-      { x: 0, y: Math.floor(Math.random() * Game.ROOM_HEIGHT) }, // Left edge
-      {
-        x: Game.ROOM_WIDTH - 1,
-        y: Math.floor(Math.random() * Game.ROOM_HEIGHT),
-      }, // Right edge
-    ];
-    const start = edges[Math.floor(Math.random() * edges.length)];
+    let start: { x: number; y: number };
+    do {
+      const edges = [
+        { x: Math.floor(Math.random() * game.roomWidth), y: 1 }, // Top edge
+        {
+          x: Math.floor(Math.random() * game.roomWidth),
+          y: game.roomHeight - 2,
+        }, // Bottom edge
+        { x: 1, y: Math.floor(Math.random() * game.roomHeight) }, // Left edge
+        {
+          x: game.roomWidth - 2,
+          y: Math.floor(Math.random() * game.roomHeight),
+        }, // Right edge
+      ];
+      start = edges[Math.floor(Math.random() * edges.length)];
+      logger.info(`Trying start position: (${start.x}, ${start.y})`);
+    } while (game.checkLocation(start.x, start.y));
+
     character.x = start.x;
     character.y = start.y;
     return game;
   }
 
+  checkLocation(x: number, y: number): Wall | Monster | Treasure | null {
+    // Check if the coordinates are within the room bounds
+    if (x < 0 || x >= this.roomWidth || y < 0 || y >= this.roomHeight) {
+      return null;
+    }
+    // Check for walls
+    for (const wall of this.walls) {
+      if (wall.x === x && wall.y === y) {
+        return wall;
+      }
+    }
+    // Check for monsters
+    for (const monster of this.monsters) {
+      if (monster.x === x && monster.y === y) {
+        return monster;
+      }
+    }
+    // Check for treasures
+    for (const treasure of this.treasures) {
+      if (treasure.x === x && treasure.y === y) {
+        return treasure;
+      }
+    }
+    return null;
+  }
+
+  drawMap(): string {
+    let map = '';
+    for (let i = 0; i < this.roomHeight; i++) {
+      for (let j = 0; j < this.roomWidth; j++) {
+        const location = this.checkLocation(j, i);
+        if (location instanceof Character) {
+          map += 'C'; // Character
+        } else if (location instanceof Wall) {
+          map += '█'; // Wall
+        } else if (location instanceof Monster) {
+          map += 'M'; // Monster
+        } else if (location instanceof Treasure) {
+          map += 'T'; // Treasure
+        } else {
+          map += ' '; // Empty space
+        }
+      }
+      map += '\n';
+    }
+    return map;
+  }
+
   private createMonsters() {
     this.monsters = [];
-    for (let i = 0; i < Game.MONSTER_COUNT; i++) {
+    for (let i = 0; i < this.monsterCount; i++) {
       const monster = new Monster();
-      monster.x = Math.floor(Math.random() * (Game.ROOM_WIDTH - 2)) + 1; // Ensure monster is not on the wall
-      monster.y = Math.floor(Math.random() * (Game.ROOM_HEIGHT - 2)) + 1;
+      monster.x = Math.floor(Math.random() * (this.roomWidth - 2)) + 1; // Ensure monster is not on the wall
+      monster.y = Math.floor(Math.random() * (this.roomHeight - 2)) + 1;
       this.monsters.push(monster);
     }
   }
 
   private createTreasures() {
     this.treasures = [];
-    for (let i = 0; i < Game.TREASURE_COUNT; i++) {
+    for (let i = 0; i < this.treasureCount; i++) {
       const treasure = new Treasure();
-      treasure.x = Math.floor(Math.random() * (Game.ROOM_WIDTH - 2)) + 1; // Ensure treasure is not on the wall
-      treasure.y = Math.floor(Math.random() * (Game.ROOM_HEIGHT - 2)) + 1;
+      treasure.x = Math.floor(Math.random() * (this.roomWidth - 2)) + 1; // Ensure treasure is not on the wall
+      treasure.y = Math.floor(Math.random() * (this.roomHeight - 2)) + 1;
       this.treasures.push(treasure);
     }
   }
 
   private createRoomMap() {
-    for (let i = 0; i < Game.ROOM_HEIGHT; i++) {
-      for (let j = 0; j < Game.ROOM_WIDTH; j++) {
+    for (let i = 0; i < this.roomHeight; i++) {
+      for (let j = 0; j < this.roomWidth; j++) {
         // walls around the edges
         if (
           i === 0 ||
-          i === Game.ROOM_HEIGHT - 1 ||
+          i === this.roomHeight - 1 ||
           j === 0 ||
-          j === Game.ROOM_WIDTH - 1
+          j === this.roomWidth - 1
         ) {
           this.walls.push(new Wall(j, i));
         } else if (Math.random() < 0.2) {
@@ -116,6 +189,8 @@ class Game {
       treasures: this.treasures,
       monsters: this.monsters,
       walls: this.walls,
+      roomHeight: this.roomHeight,
+      roomWidth: this.roomWidth,
     };
   }
 }

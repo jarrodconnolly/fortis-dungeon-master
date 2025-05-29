@@ -21,5 +21,9 @@ suite('Game Tests', () => {
     assert.ok(game.treasures.length > 0, 'Treasures should be initialized');
     assert.ok(game.monsters.length > 0, 'Monsters should be initialized');
     assert.ok(game.walls.length > 0, 'Walls should be initialized');
+    assert.equal(game.roomHeight, 20, 'Default room height should be 20');
+    assert.equal(game.roomWidth, 20, 'Default room width should be 20');
+    assert.equal(game.treasureCount, 8, 'Default treasure count should be 8');
+    assert.equal(game.monsterCount, 5, 'Default monster count should be 5');
   });
 });
