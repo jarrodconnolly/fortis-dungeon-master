@@ -11,7 +11,7 @@ suite('Game Tests', () => {
     assert.ok(game, 'Game instance should be created');
     assert.ok(game.gameId, 'gameId should be assigned');
     assert.equal(
-      game.characterId,
+      game.characters[0],
       character.characterId,
       'Game should be associated with the correct character',
     );

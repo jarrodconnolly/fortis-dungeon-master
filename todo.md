@@ -10,13 +10,15 @@
   * API Key?
 * Rate limiting
 * ~~In-Memory singleton data stores replaced with database~~
-* Multiplayer support
-  * Game join code?
+* Game join codes
 * Cleaner map generation, things clobber each other
 * Observability. Metrics, ~~logging~~, tracing
 * Ensure TLS, compression, etc.
 * Move room size to game instance
 * Build a basic CLI to play the game
+* Game knows which players are in it, player does not know what games it is in
+  * Add reference or players can join multiple games
+
 
 ## Fortis Dungeon Master Functional Requirements
 

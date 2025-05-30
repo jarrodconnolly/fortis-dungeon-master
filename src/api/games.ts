@@ -13,6 +13,13 @@ interface getGameRequest extends RequestGenericInterface {
   };
 }
 
+interface joinGameRequest extends RequestGenericInterface {
+  Querystring: {
+    gameId: UUID;
+    characterId: UUID;
+  };
+}
+
 interface createGameRequest extends RequestGenericInterface {
   Querystring: {
     characterId: UUID;
@@ -25,6 +32,16 @@ async function games(fastify: FastifyInstance, opts: FastifyServerOptions) {
     async (req: FastifyRequest<createGameRequest>, reply) => {
       const characterId = req.query.characterId;
       const game = Game.createGame(characterId);
+      return game;
+    },
+  );
+
+  fastify.post(
+    '/games/join',
+    async (req: FastifyRequest<joinGameRequest>, reply) => {
+      const gameId = req.query.gameId;
+      const characterId = req.query.characterId;
+      const game = Game.joinGame(gameId, characterId);
       return game;
     },
   );

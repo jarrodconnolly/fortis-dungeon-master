@@ -1,11 +1,14 @@
 import { join } from 'node:path';
 import { JSONFilePreset } from 'lowdb/node';
 
-export type Game = {
+export type GameDB = {
   gameId: string;
-  characterId: string;
+  characters: string[];
   monsters: Monster[];
   treasures: Treasure[];
+  walls: { x: number; y: number }[];
+  roomHeight: number;
+  roomWidth: number;
 };
 
 export type CharacterDB = {
@@ -15,6 +18,8 @@ export type CharacterDB = {
   y: number;
   level: number;
   hp: number;
+  xp: number;
+  treasure: { name: string; amount: number }[];
   characterClass: string;
   Strength: number;
   Dexterity: number;
@@ -33,7 +38,7 @@ export type Monster = {
   name: string;
 };
 export type DBSchema = {
-  games: Game[];
+  games: GameDB[];
   characters: CharacterDB[];
 };
 
@@ -49,17 +54,17 @@ await db.read();
 await db.write();
 
 // Example CRUD helpers (expand as needed)
-export async function getGames(): Promise<Game[]> {
+export async function getGames(): Promise<GameDB[]> {
   await db.read();
   return db.data?.games || [];
 }
 
-export async function getGameById(gameId: string): Promise<Game | null> {
+export async function getGameById(gameId: string): Promise<GameDB | null> {
   await db.read();
   return db.data?.games.find((game) => game.gameId === gameId) ?? null;
 }
 
-export async function saveGame(game: Game): Promise<void> {
+export async function saveGame(game: GameDB): Promise<void> {
   await db.read();
   db.data.games.push(game);
   await db.write();

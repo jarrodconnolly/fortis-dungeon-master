@@ -55,7 +55,6 @@ async function monsters(fastify: FastifyInstance, opts: FastifyServerOptions) {
       }
 
       const { x, y, hp } = req.body;
-      // Update monster logic here, e.g., changing its state or attributes
       monster.x = x;
       monster.y = y;
       monster.hp = hp;

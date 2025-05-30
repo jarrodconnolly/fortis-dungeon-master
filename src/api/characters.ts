@@ -1,6 +1,7 @@
 import type { UUID } from 'node:crypto';
 import type { FastifyInstance, RouteShorthandOptions } from 'fastify';
 import { Character } from '../lib/character.js';
+import { logger } from '../lib/logger.js';
 
 interface characterRequest {
   characterId: UUID;
@@ -20,10 +21,6 @@ const characterOptions = {
 
 const postCharacterOptions: RouteShorthandOptions = {
   schema: {
-    body: { additionalProperties: false },
-    querystring: { additionalProperties: false },
-    params: { additionalProperties: false },
-    headers: { additionalProperties: false },
     response: {
       404: {
         type: 'object',

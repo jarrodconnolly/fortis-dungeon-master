@@ -3,6 +3,7 @@ import type { UUID } from 'node:crypto';
 import { faker } from '@faker-js/faker';
 import type { CharacterDB } from './db.js';
 import { getCharacterById, saveCharacter } from './db.js';
+import { logger } from './logger.js';
 
 const standardStatsArray = [15, 14, 13, 12, 10, 8];
 
@@ -28,6 +29,8 @@ class Character {
   y!: number;
   level!: number;
   hp!: number;
+  xp!: number;
+  treasure: { name: string; amount: number }[] = [];
   characterClass!: string;
   Strength!: number;
   Dexterity!: number;
@@ -48,6 +51,11 @@ class Character {
       y: this.y,
       level: this.level,
       hp: this.hp,
+      xp: this.xp,
+      treasure: this.treasure.map((t) => ({
+        name: t.name,
+        amount: t.amount,
+      })),
       characterClass: this.characterClass,
       Strength: this.Strength,
       Dexterity: this.Dexterity,
@@ -63,10 +71,12 @@ class Character {
   ): Promise<Character | null> {
     const characterData = await getCharacterById(characterId);
     if (!characterData) {
+      logger.error(`Character with ID ${characterId} not found`);
       return null;
     }
     const character = new Character();
     Object.assign(character, characterData);
+    logger.info(`Character with ID ${characterId} retrieved successfully`);
     return character;
   }
 
@@ -86,7 +96,8 @@ class Character {
     character.level = level;
     character.characterClass = CharacterClass[characterClass];
     character.hp = Math.floor(Math.random() * 10) + 1 + level * 2; // Base HP + level scaling
-
+    character.xp = 0; // Start with 0 XP
+    character.treasure = [];
     // Shuffle the standard stats array and assign them to the character's stats
     const stats = [...standardStatsArray].sort(() => Math.random() - 0.5);
     character.Strength = stats[0];
@@ -96,6 +107,9 @@ class Character {
     character.Wisdom = stats[4];
     character.Charisma = stats[5];
 
+    logger.info(
+      `Generated character: ID: ${character.characterId}, Name: ${character.name}, Class: ${character.characterClass}, Level: ${character.level}`,
+    );
     await Character.saveCharacter(character);
     return character;
   }

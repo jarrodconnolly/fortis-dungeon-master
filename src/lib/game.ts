@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto';
 import type { UUID } from 'node:crypto';
 import { Character } from './character.js';
-import { getGameById } from './db.js';
+import { getGameById, saveGame } from './db.js';
+import type { GameDB } from './db.js';
 import { logger } from './logger.js';
 import { Monster } from './monster.js';
 import { Treasure } from './treasure.js';
@@ -18,7 +19,7 @@ class Wall {
 
 class Game {
   gameId: UUID;
-  characterId!: UUID;
+  characters!: UUID[];
   treasures: Treasure[] = [];
   monsters: Monster[] = [];
   walls: Wall[] = [];
@@ -51,6 +52,28 @@ class Game {
     return game;
   }
 
+  public static async saveGame(game: Game): Promise<void> {
+    await saveGame(game.toJSON());
+  }
+
+  public static async joinGame(gameId: UUID, characterId: UUID): Promise<Game> {
+    logger.info(`Character ${characterId} is joining game ${gameId}`);
+    const game = await Game.getGame(gameId);
+    if (!game) {
+      throw new Error(`Game with ID ${gameId} does not exist.`);
+    }
+    if (game.characters.includes(characterId)) {
+      throw new Error(`Character ${characterId} is already in the game.`);
+    }
+    const character = await Character.getCharacter(characterId);
+    if (!character) {
+      throw new Error(`Character with ID ${characterId} does not exist.`);
+    }
+    game.characters.push(characterId);
+    await Game.saveGame(game);
+    return game;
+  }
+
   public static async createGame(
     characterId: UUID,
     roomHeight = 20,
@@ -66,7 +89,7 @@ class Game {
       throw new Error(`Character with ID ${characterId} does not exist.`);
     }
     const game = new Game(roomHeight, roomWidth, treasureCount, monsterCount);
-    game.characterId = characterId;
+    game.characters = [characterId];
     game.createRoomMap();
     game.createMonsters();
     game.createTreasures();
@@ -92,6 +115,7 @@ class Game {
 
     character.x = start.x;
     character.y = start.y;
+    await Game.saveGame(game);
     return game;
   }
 
@@ -182,10 +206,10 @@ class Game {
     }
   }
 
-  public toJSON(): object {
+  public toJSON(): GameDB {
     return {
       gameId: this.gameId,
-      characterId: this.characterId,
+      characters: this.characters,
       treasures: this.treasures,
       monsters: this.monsters,
       walls: this.walls,
