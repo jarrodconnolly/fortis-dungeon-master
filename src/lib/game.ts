@@ -19,7 +19,7 @@ class Wall {
 
 class Game {
   gameId: UUID;
-  characters!: UUID[];
+  characters!: { characterId: UUID; x: number; y: number }[];
   treasures: Treasure[] = [];
   monsters: Monster[] = [];
   walls: Wall[] = [];
@@ -62,39 +62,21 @@ class Game {
     if (!game) {
       throw new Error(`Game with ID ${gameId} does not exist.`);
     }
-    if (game.characters.includes(characterId)) {
+    if (game.characters.some((c) => c.characterId === characterId)) {
       throw new Error(`Character ${characterId} is already in the game.`);
     }
     const character = await Character.getCharacter(characterId);
     if (!character) {
       throw new Error(`Character with ID ${characterId} does not exist.`);
     }
-    game.characters.push(characterId);
+    const start = Game.findStartPosition(game);
+    game.characters.push({ characterId, x: start.x, y: start.y });
     await Game.saveGame(game);
     return game;
   }
 
-  public static async createGame(
-    characterId: UUID,
-    roomHeight = 20,
-    roomWidth = 20,
-    treasureCount = 8,
-    monsterCount = 5,
-  ): Promise<Game> {
-    logger.info(
-      `Creating game for character ${characterId} with dimensions ${roomWidth}x${roomHeight}, treasures: ${treasureCount}, monsters: ${monsterCount}`,
-    );
-    const character = await Character.getCharacter(characterId);
-    if (!character) {
-      throw new Error(`Character with ID ${characterId} does not exist.`);
-    }
-    const game = new Game(roomHeight, roomWidth, treasureCount, monsterCount);
-    game.characters = [characterId];
-    game.createRoomMap();
-    game.createMonsters();
-    game.createTreasures();
-
-    // Move the character to a random start position at one edge of the map
+  private static findStartPosition(game: Game): { x: number; y: number } {
+    // Find a random start position at one edge of the map
     let start: { x: number; y: number };
     do {
       const edges = [
@@ -112,9 +94,31 @@ class Game {
       start = edges[Math.floor(Math.random() * edges.length)];
       logger.info(`Trying start position: (${start.x}, ${start.y})`);
     } while (game.checkLocation(start.x, start.y));
+    return start;
+  }
 
-    character.x = start.x;
-    character.y = start.y;
+  public static async createGame(
+    characterId: UUID,
+    roomHeight = 20,
+    roomWidth = 20,
+    treasureCount = 8,
+    monsterCount = 5,
+  ): Promise<Game> {
+    logger.info(
+      `Creating game for character ${characterId} with dimensions ${roomWidth}x${roomHeight}, treasures: ${treasureCount}, monsters: ${monsterCount}`,
+    );
+    const character = await Character.getCharacter(characterId);
+    if (!character) {
+      throw new Error(`Character with ID ${characterId} does not exist.`);
+    }
+    const game = new Game(roomHeight, roomWidth, treasureCount, monsterCount);
+
+    game.createRoomMap();
+    game.createMonsters();
+    game.createTreasures();
+
+    const start = Game.findStartPosition(game);
+    game.characters = [{ characterId, x: start.x, y: start.y }];
     await Game.saveGame(game);
     return game;
   }

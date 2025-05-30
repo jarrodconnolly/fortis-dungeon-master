@@ -25,8 +25,6 @@ enum CharacterClass {
 class Character {
   characterId: UUID;
   name!: string;
-  x!: number;
-  y!: number;
   level!: number;
   hp!: number;
   xp!: number;
@@ -47,8 +45,6 @@ class Character {
     return {
       characterId: this.characterId,
       name: this.name,
-      x: this.x,
-      y: this.y,
       level: this.level,
       hp: this.hp,
       xp: this.xp,
