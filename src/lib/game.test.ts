@@ -5,7 +5,7 @@ import { Game } from './game.js';
 
 suite('Game Tests', () => {
   test('Game constructor initializes properties', async () => {
-    const character = Character.generateRandomCharacter();
+    const character = await Character.generateRandomCharacter();
     await Character.saveCharacter(character);
     const game = await Game.createGame(character.characterId);
     assert.ok(game, 'Game instance should be created');

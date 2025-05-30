@@ -74,7 +74,7 @@ class Character {
     await saveCharacter(character.toJSON());
   }
 
-  public static generateRandomCharacter(): Character {
+  public static async generateRandomCharacter(): Promise<Character> {
     const name = `${faker.person.firstName()} ${faker.person.lastName()}`;
     const level = Math.floor(Math.random() * 5) + 1;
     const characterClass = Math.floor(
@@ -95,6 +95,8 @@ class Character {
     character.Intelligence = stats[3];
     character.Wisdom = stats[4];
     character.Charisma = stats[5];
+
+    await Character.saveCharacter(character);
     return character;
   }
 }

@@ -4,7 +4,7 @@ import { Character } from './character.js';
 
 suite('Character Tests', () => {
   test('Character returns valid JSON object', async () => {
-    const character = Character.generateRandomCharacter();
+    const character = await Character.generateRandomCharacter();
     const obj = character.toJSON();
     assert.ok(typeof obj.name === 'string');
     assert.ok(typeof obj.level === 'number');
@@ -13,8 +13,8 @@ suite('Character Tests', () => {
     await Character.saveCharacter(character);
   });
 
-  test('Character.generateRandomCharacter creates a valid character', () => {
-    const character = Character.generateRandomCharacter();
+  test('Character.generateRandomCharacter creates a valid character', async () => {
+    const character = await Character.generateRandomCharacter();
     assert.ok(character.name, 'Character should have a name');
     assert.ok(
       character.level >= 1 && character.level <= 5,
@@ -51,7 +51,7 @@ suite('Character Tests', () => {
   });
 
   test('Character.getCharacter retrieves the correct character', async () => {
-    const character = Character.generateRandomCharacter();
+    const character = await Character.generateRandomCharacter();
     await Character.saveCharacter(character);
     const fetched = await Character.getCharacter(character.characterId);
     assert.deepEqual(fetched, character, 'Should retrieve the same character');
