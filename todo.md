@@ -2,23 +2,28 @@
 
 ## TODOs
 
-* Complete basic functionality
+* ~~Complete basic functionality~~
 * ~~Unit testing~~
-* Fastify input validation
+* ~~Fastify input validation~~
+* ~~Different size rooms~~
+* ~~In-Memory singleton data stores replaced with database~~
+* ~~Cleaner map generation, things clobber each other~~
+
+* Observability. Metrics, ~~logging~~, tracing
+* Ensure TLS, compression, etc.
+* Game join codes
+* Build a basic CLI to play the game
+* Game knows which players are in it, player does not know what games it is in
+  * Add reference or players can join multiple games
 * API documentation
 * Authentication / Authorization
   * API Key?
 * Rate limiting
-* ~~In-Memory singleton data stores replaced with database~~
-* Game join codes
-* Cleaner map generation, things clobber each other
-* Observability. Metrics, ~~logging~~, tracing
-* Ensure TLS, compression, etc.
-* Move room size to game instance
-* Build a basic CLI to play the game
-* Game knows which players are in it, player does not know what games it is in
-  * Add reference or players can join multiple games
 
+## Challenges
+
+* Ensure that the game state is consistent across multiple requests, especially during combat and treasure collection.
+* Not a huge fan of the single PUT update call for game state, might be better to have separate endpoints for combat, movement, and treasure collection to simplify the logic and improve clarity.
 
 ## Fortis Dungeon Master Functional Requirements
 

@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { UUID } from 'node:crypto';
 import { Character } from './character.js';
-import { getGameById, saveGame } from './db.js';
+import { getGameById, getGames, saveGame } from './db.js';
 import type { GameDB } from './db.js';
 import { logger } from './logger.js';
 import { Monster } from './monster.js';
@@ -41,6 +41,21 @@ class Game {
     this.monsterCount = monsterCount;
   }
 
+  public static async getGames(): Promise<Game[]> {
+    const gameDataRaw = await getGames();
+    if (!gameDataRaw) {
+      logger.error('No games found');
+      return [];
+    }
+    const games: Game[] = [];
+    for (const gameData of gameDataRaw) {
+      const game = new Game();
+      Object.assign(game, gameData);
+      games.push(game);
+    }
+    logger.info(`Retrieved ${games.length} games`);
+    return games;
+  }
   public static async getGame(gameId: UUID): Promise<Game | null> {
     const gameDataRaw = await getGameById(gameId);
     if (!gameDataRaw) {

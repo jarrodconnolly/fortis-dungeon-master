@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { UUID } from 'node:crypto';
 import { faker } from '@faker-js/faker';
 import type { CharacterDB } from './db.js';
-import { getCharacterById, saveCharacter } from './db.js';
+import { getCharacterById, getCharacters, saveCharacter } from './db.js';
 import { logger } from './logger.js';
 
 const standardStatsArray = [15, 14, 13, 12, 10, 8];
@@ -74,6 +74,21 @@ class Character {
     Object.assign(character, characterData);
     logger.info(`Character with ID ${characterId} retrieved successfully`);
     return character;
+  }
+
+  public static async getCharacters(): Promise<Character[] | null> {
+    const characterData = await getCharacters();
+    if (!characterData) {
+      logger.error('No characters found');
+      return null;
+    }
+    const characters = characterData.map((data: CharacterDB) => {
+      const character = new Character();
+      Object.assign(character, data);
+      return character;
+    });
+    logger.info(`Retrieved ${characters.length} characters successfully`);
+    return characters;
   }
 
   public static async saveCharacter(character: Character): Promise<void> {

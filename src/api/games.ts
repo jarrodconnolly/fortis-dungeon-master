@@ -8,7 +8,7 @@ import type {
 import { Game } from '../lib/game.js';
 
 interface getGameRequest extends RequestGenericInterface {
-  Querystring: {
+  Params: {
     gameId: UUID;
   };
 }
@@ -17,6 +17,18 @@ interface joinGameRequest extends RequestGenericInterface {
   Querystring: {
     gameId: UUID;
     characterId: UUID;
+  };
+}
+
+interface updateGameRequest extends RequestGenericInterface {
+  Params: {
+    gameId: UUID;
+  };
+  Body: {
+    characters: {
+      x: number;
+      y: number;
+    };
   };
 }
 
@@ -46,13 +58,38 @@ async function games(fastify: FastifyInstance, opts: FastifyServerOptions) {
     },
   );
 
-  fastify.get('/games', async (req: FastifyRequest<getGameRequest>, reply) => {
-    const gameId = req.query.gameId;
-    const game = await Game.getGame(gameId);
-    if (!game) {
-      return reply.status(404).send({ error: 'Game not found' });
+  fastify.put(
+    '/games/:gameId',
+    async (req: FastifyRequest<updateGameRequest>, reply) => {
+      const gameId = req.params.gameId;
+      const game = await Game.getGame(gameId);
+      if (!game) {
+        return reply.status(404).send({ error: 'Game not found' });
+      }
+      // Update game properties based on request body
+      Object.assign(game, req.body);
+      await Game.saveGame(game);
+      return game;
+    },
+  );
+
+  fastify.get(
+    '/games/:gameId',
+    async (req: FastifyRequest<getGameRequest>, reply) => {
+      const game = await Game.getGame(req.params.gameId);
+      if (!game) {
+        return reply.status(404).send({ error: 'Game not found' });
+      }
+      return game;
+    },
+  );
+
+  fastify.get('/games', async (req, reply) => {
+    const games = await Game.getGames();
+    if (!games) {
+      return reply.status(404).send({ error: 'No games found' });
     }
-    return game;
+    return games;
   });
 }
 

@@ -1,23 +1,10 @@
 import type { UUID } from 'node:crypto';
 import type { FastifyInstance, RouteShorthandOptions } from 'fastify';
 import { Character } from '../lib/character.js';
-import { logger } from '../lib/logger.js';
 
 interface characterRequest {
   characterId: UUID;
 }
-
-const characterOptions = {
-  schema: {
-    querystring: {
-      type: 'object',
-      properties: {
-        characterId: { type: 'string', format: 'uuid' },
-      },
-      required: ['characterId'],
-    },
-  },
-};
 
 const postCharacterOptions: RouteShorthandOptions = {
   schema: {
@@ -36,6 +23,7 @@ const postCharacterOptions: RouteShorthandOptions = {
           class: { type: 'string' },
           level: { type: 'integer' },
           hp: { type: 'integer' },
+          xp: { type: 'integer' },
           characterClass: { type: 'string' },
           Strength: { type: 'integer' },
           Dexterity: { type: 'integer' },
@@ -55,11 +43,10 @@ async function characters(fastify: FastifyInstance) {
     return character;
   });
 
-  fastify.get<{ Querystring: characterRequest }>(
-    '/characters',
-    characterOptions,
+  fastify.get<{ Params: characterRequest }>(
+    '/characters/:characterId',
     async (req, reply) => {
-      const characterId = req.query.characterId as UUID;
+      const characterId = req.params.characterId as UUID;
       const character = Character.getCharacter(characterId);
       if (!character) {
         return reply.status(404).send({ error: 'Character not found' });
@@ -67,6 +54,11 @@ async function characters(fastify: FastifyInstance) {
       return character;
     },
   );
+
+  fastify.get('/characters', async (req, reply) => {
+    const characters = Character.getCharacters();
+    return characters;
+  });
 }
 
 export default characters;
