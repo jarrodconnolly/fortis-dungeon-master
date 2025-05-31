@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { UUID } from 'node:crypto';
+import { faker } from '@faker-js/faker';
 import { Character } from './character.js';
 import { getGameById, getGames, saveGame } from './db.js';
 import type { GameDB } from './db.js';
@@ -19,6 +20,7 @@ class Wall {
 
 class Game {
   gameId: UUID;
+  name: string;
   characters!: { characterId: UUID; x: number; y: number }[];
   treasures: Treasure[] = [];
   monsters: Monster[] = [];
@@ -39,6 +41,8 @@ class Game {
     this.roomWidth = roomWidth;
     this.treasureCount = treasureCount;
     this.monsterCount = monsterCount;
+
+    this.name = `${faker.commerce.productMaterial()} ${faker.commerce.product()}`;
   }
 
   public static async getGames(): Promise<Game[]> {
@@ -228,6 +232,7 @@ class Game {
   public toJSON(): GameDB {
     return {
       gameId: this.gameId,
+      name: this.name,
       characters: this.characters,
       treasures: this.treasures,
       monsters: this.monsters,

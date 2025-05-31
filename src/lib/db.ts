@@ -3,6 +3,7 @@ import { JSONFilePreset } from 'lowdb/node';
 
 export type GameDB = {
   gameId: string;
+  name: string;
   characters: { characterId: string; x: number; y: number }[];
   monsters: Monster[];
   treasures: Treasure[];

@@ -1,3 +1,5 @@
+import type { GameDB } from '../src/lib/db.js';
+
 const API_BASE_URL = 'http://127.0.0.1:3000/api';
 
 async function getCharacters() {
@@ -26,7 +28,7 @@ async function generateCharacter() {
   return response.json();
 }
 
-async function getGames() {
+async function getGames(): Promise<GameDB[]> {
   const response = await fetch(`${API_BASE_URL}/games`);
   if (!response.ok) {
     throw new Error('Network response was not ok');
@@ -35,7 +37,20 @@ async function getGames() {
 }
 
 async function getGame(gameId: string) {
-  const response = await fetch(`${API_BASE_URL}/games?gameId=${gameId}`);
+  const response = await fetch(`${API_BASE_URL}/games/${gameId}`);
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return response.json();
+}
+
+async function joinGame(gameId: string, characterId: string) {
+  const response = await fetch(
+    `${API_BASE_URL}/games/join?gameId=${gameId}&characterId=${characterId}`,
+    {
+      method: 'POST',
+    },
+  );
   if (!response.ok) {
     throw new Error('Network response was not ok');
   }
@@ -61,4 +76,5 @@ export {
   generateCharacter,
   getGames,
   getGame,
+  joinGame,
 };
