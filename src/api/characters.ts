@@ -6,6 +6,7 @@ interface characterRequest {
   characterId: UUID;
 }
 
+// Example using Fastify's schema validation
 const postCharacterOptions: RouteShorthandOptions = {
   schema: {
     response: {
@@ -38,11 +39,13 @@ const postCharacterOptions: RouteShorthandOptions = {
 };
 
 async function characters(fastify: FastifyInstance) {
+  // Generate a random character
   fastify.post('/characters', postCharacterOptions, async (req, reply) => {
     const character = await Character.generateRandomCharacter();
     return character;
   });
 
+  // Get a specific character by ID
   fastify.get<{ Params: characterRequest }>('/characters/:characterId', async (req, reply) => {
     const characterId = req.params.characterId as UUID;
     const character = Character.getCharacter(characterId);
@@ -52,6 +55,7 @@ async function characters(fastify: FastifyInstance) {
     return character;
   });
 
+  // Get all characters
   fastify.get('/characters', async (req, reply) => {
     const characters = Character.getCharacters();
     return characters;

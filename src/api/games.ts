@@ -34,12 +34,14 @@ interface createGameRequest extends RequestGenericInterface {
 }
 
 async function games(fastify: FastifyInstance, opts: FastifyServerOptions) {
+  // Create a new game
   fastify.post('/games', async (req: FastifyRequest<createGameRequest>, reply) => {
     const characterId = req.query.characterId;
     const game = Game.createGame(characterId);
     return game;
   });
 
+  // Move a character in a game
   fastify.post(
     '/games/:gameId/move',
     async (
@@ -60,6 +62,7 @@ async function games(fastify: FastifyInstance, opts: FastifyServerOptions) {
     },
   );
 
+  // Join an existing game
   fastify.post('/games/join', async (req: FastifyRequest<joinGameRequest>, reply) => {
     const gameId = req.query.gameId;
     const characterId = req.query.characterId;
@@ -67,6 +70,7 @@ async function games(fastify: FastifyInstance, opts: FastifyServerOptions) {
     return game;
   });
 
+  // Update game state
   fastify.put('/games/:gameId', async (req: FastifyRequest<updateGameRequest>, reply) => {
     const gameId = req.params.gameId;
     const game = await Game.getGame(gameId);
@@ -79,6 +83,7 @@ async function games(fastify: FastifyInstance, opts: FastifyServerOptions) {
     return game;
   });
 
+  // Get game details
   fastify.get('/games/:gameId', async (req: FastifyRequest<getGameRequest>, reply) => {
     const game = await Game.getGame(req.params.gameId);
     if (!game) {
@@ -87,6 +92,7 @@ async function games(fastify: FastifyInstance, opts: FastifyServerOptions) {
     return game;
   });
 
+  // Get all games
   fastify.get('/games', async (req, reply) => {
     const games = await Game.getGames();
     if (!games) {

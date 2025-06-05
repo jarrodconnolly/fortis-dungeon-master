@@ -22,6 +22,7 @@ interface treasureUpdateRequest extends RequestGenericInterface {
 }
 
 async function treasures(fastify: FastifyInstance, opts: FastifyServerOptions) {
+  // List all treasures in a game
   fastify.get('/treasures', async (req: FastifyRequest<treasureListRequest>, reply) => {
     const gameId = req.query.gameId;
     const game = await Game.getGame(gameId);
@@ -31,6 +32,7 @@ async function treasures(fastify: FastifyInstance, opts: FastifyServerOptions) {
     return game.treasures;
   });
 
+  // Update a treasure (unused presently)
   fastify.put('/treasures/:treasureId', async (req: FastifyRequest<treasureUpdateRequest>, reply) => {
     const gameId = req.query.gameId;
     const game = await Game.getGame(gameId);

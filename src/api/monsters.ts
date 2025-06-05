@@ -22,6 +22,7 @@ interface monsterUpdateRequest extends RequestGenericInterface {
 }
 
 async function monsters(fastify: FastifyInstance, opts: FastifyServerOptions) {
+  // List all monsters in a game
   fastify.get('/monsters', async (req: FastifyRequest<monsterListRequest>, reply) => {
     const gameId = req.query.gameId;
     const game = await Game.getGame(gameId);
@@ -31,6 +32,7 @@ async function monsters(fastify: FastifyInstance, opts: FastifyServerOptions) {
     return game.monsters;
   });
 
+  // Update a monster (unused presently)
   fastify.put('/monsters/:monsterId', async (req: FastifyRequest<monsterUpdateRequest>, reply) => {
     const gameId = req.query.gameId;
     const game = await Game.getGame(gameId);

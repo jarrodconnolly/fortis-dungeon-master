@@ -269,17 +269,8 @@ async function main() {
   console.log(chalk.green('Thank you for playing Fortis Dungeon Master!\n'));
 }
 
-main().catch((err) => {
-  if (err instanceof Error && err.name === 'ExitPromptError') {
-    console.log(chalk.red('\nExiting the application...\n'));
-    process.exit(0);
-  }
-  console.error(err);
-  process.exit(1);
-});
-
-const charColors = [chalk.greenBright, chalk.cyanBright, chalk.magentaBright, chalk.blueBright];
-
+// draw the beautiful map of the dungeon
+const charColors = [chalk.greenBright, chalk.magentaBright, chalk.blueBright, chalk.whiteBright];
 function drawMap(game) {
   for (let y = 0; y < game.roomHeight; y++) {
     let row = '';
@@ -306,3 +297,12 @@ function drawMap(game) {
     console.log(row);
   }
 }
+
+main().catch((err) => {
+  if (err instanceof Error && err.name === 'ExitPromptError') {
+    console.log(chalk.red('\nExiting the application...\n'));
+    process.exit(0);
+  }
+  console.error(err);
+  process.exit(1);
+});
