@@ -38,9 +38,7 @@ class Monster {
 
   constructor() {
     this.monsterId = randomUUID();
-    const animalType = faker.helpers.arrayElement(
-      animalTypes,
-    ) as keyof AnimalModule;
+    const animalType = faker.helpers.arrayElement(animalTypes) as keyof AnimalModule;
     this.name = `${faker.animal[animalType]()}`;
     this.level = Math.floor(Math.random() * 3) + 1;
     this.hp = Math.floor(Math.random() * 10) + 1 + this.level * 2;

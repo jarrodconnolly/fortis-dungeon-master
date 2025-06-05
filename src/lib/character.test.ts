@@ -16,38 +16,14 @@ suite('Character Tests', () => {
   test('Character.generateRandomCharacter creates a valid character', async () => {
     const character = await Character.generateRandomCharacter();
     assert.ok(character.name, 'Character should have a name');
-    assert.ok(
-      character.level >= 1 && character.level <= 5,
-      'Level should be between 1 and 5',
-    );
-    assert.ok(
-      typeof character.characterClass === 'string',
-      'characterClass should be a string',
-    );
-    assert.ok(
-      typeof character.Strength === 'number',
-      'Strength should be a number',
-    );
-    assert.ok(
-      typeof character.Dexterity === 'number',
-      'Dexterity should be a number',
-    );
-    assert.ok(
-      typeof character.Constitution === 'number',
-      'Constitution should be a number',
-    );
-    assert.ok(
-      typeof character.Intelligence === 'number',
-      'Intelligence should be a number',
-    );
-    assert.ok(
-      typeof character.Wisdom === 'number',
-      'Wisdom should be a number',
-    );
-    assert.ok(
-      typeof character.Charisma === 'number',
-      'Charisma should be a number',
-    );
+    assert.ok(character.level >= 1 && character.level <= 5, 'Level should be between 1 and 5');
+    assert.ok(typeof character.characterClass === 'string', 'characterClass should be a string');
+    assert.ok(typeof character.Strength === 'number', 'Strength should be a number');
+    assert.ok(typeof character.Dexterity === 'number', 'Dexterity should be a number');
+    assert.ok(typeof character.Constitution === 'number', 'Constitution should be a number');
+    assert.ok(typeof character.Intelligence === 'number', 'Intelligence should be a number');
+    assert.ok(typeof character.Wisdom === 'number', 'Wisdom should be a number');
+    assert.ok(typeof character.Charisma === 'number', 'Charisma should be a number');
   });
 
   test('Character.getCharacter retrieves the correct character', async () => {

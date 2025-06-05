@@ -8,6 +8,8 @@ import {
   getGame,
   getGames,
   joinGame,
+  moveCharacter,
+  newGame,
 } from './requests.js';
 
 let selectedCharacterId: string | null = null;
@@ -37,7 +39,6 @@ ${chalk.greenBright('Dungeon Commands:')}
 - ${chalk.green('s')}: Move the character south.
 - ${chalk.green('a')}: Move the character west.
 - ${chalk.green('d')}: Move the character east.
-- ${chalk.green('i')}: Show the character's inventory.
 
 `;
 
@@ -72,28 +73,52 @@ async function main() {
         drawMap(game);
         break;
       }
+      case 'w':
+      case 's':
+      case 'a':
+      case 'd': {
+        if (!selectedGameId || !selectedCharacterId) {
+          console.log(chalk.red('No game or character selected. Please select a game and character first.'));
+          break;
+        }
+        const game = await getGame(selectedGameId);
+        const direction = command === 'w' ? 'up' : command === 's' ? 'down' : command === 'a' ? 'left' : 'right';
+        try {
+          const result = await moveCharacter(selectedGameId, selectedCharacterId, direction);
+          console.log(chalk.greenBright(`${result.message}`));
+          // redraw the map after moving
+          const game = await getGame(selectedGameId);
+          drawMap(game);
+        } catch (error) {
+          console.log(chalk.red('Invalid move.'));
+        }
+        break;
+      }
       case 'status': {
         if (selectedCharacterId) {
+          console.log();
           const character = await getCharacter(selectedCharacterId);
           if (character) {
+            const inventory = character.treasure.map((t) => `${t.name} (${t.amount})`).join(', ');
+            console.log(chalk.greenBright(`${character.name}`));
             console.log(
-              chalk.greenBright(`Character: ${character.name}`) +
-                chalk.greenBright(` Level: ${character.level}`) +
+              chalk.greenBright(` Level: ${character.level}`) +
                 chalk.greenBright(` Class: ${character.characterClass}`),
             );
+            console.log(chalk.greenBright(` HP: ${character.hp}`) + chalk.greenBright(` XP: ${character.xp}`));
+            console.log(chalk.greenBright(` Inventory: ${inventory}`));
           } else {
-            console.log(
-              chalk.red(`Character with ID ${selectedCharacterId} not found.`),
-            );
+            console.log(chalk.red(`Character with ID ${selectedCharacterId} not found.`));
           }
         } else {
           console.log(chalk.yellow('No character selected.'));
         }
         if (selectedGameId) {
+          console.log();
           const game = await getGame(selectedGameId);
           if (game) {
-            console.log(chalk.blue(`Game Status: ${game.name}`));
-            console.log(chalk.green(`Players: ${game.players.length}`));
+            console.log(chalk.greenBright(`${game.name}`));
+            console.log(chalk.greenBright(`  Characters: ${game.characters.length}`));
           } else {
             console.log(chalk.red(`Game with ID ${selectedGameId} not found.`));
           }
@@ -114,9 +139,7 @@ async function main() {
             try {
               const character = await generateCharacter();
               selectedCharacterId = character.characterId;
-              console.log(
-                chalk.green(`Generated character: ${character.name}`),
-              );
+              console.log(chalk.green(`Generated character: ${character.name} (ID: ${character.characterId})`));
             } catch (error) {
               console.log(chalk.red('Error generating character.'));
             }
@@ -131,21 +154,11 @@ async function main() {
             }
 
             const table = new Table({
-              head: [
-                chalk.green('ID'),
-                chalk.green('Name'),
-                chalk.green('Class'),
-                chalk.green('Level'),
-              ],
+              head: [chalk.green('ID'), chalk.green('Name'), chalk.green('Class'), chalk.green('Level')],
             });
 
             for (const character of characters) {
-              table.push([
-                character.characterId,
-                character.name,
-                character.characterClass,
-                character.level,
-              ]);
+              table.push([character.characterId, character.name, character.characterClass, character.level]);
             }
 
             console.log(table.toString());
@@ -160,9 +173,7 @@ async function main() {
             try {
               const character = await getCharacter(characterId);
               selectedCharacterId = character.characterId;
-              console.log(
-                chalk.greenBright(`Selected character: ${character.name}`),
-              );
+              console.log(chalk.greenBright(`Selected character: ${character.name}`));
             } catch (error) {
               console.log(`Character with ID ${characterId} not found.`);
             }
@@ -180,6 +191,17 @@ async function main() {
         }
         switch (subCommand) {
           case 'new': {
+            if (!selectedCharacterId) {
+              console.log(chalk.red('Please select a character first.'));
+              break;
+            }
+            try {
+              const game = await newGame(selectedCharacterId);
+              selectedGameId = game.gameId;
+              console.log(chalk.green(`New game started: ${game.name} (ID: ${game.gameId})`));
+            } catch (error) {
+              console.log(chalk.red('Error starting new game.'));
+            }
             break;
           }
           case 'join': {
@@ -196,11 +218,7 @@ async function main() {
               const game = await getGame(gameId);
               if (game) {
                 selectedGameId = game.gameId;
-                if (
-                  !game.characters.some(
-                    (c) => c.characterId === selectedCharacterId,
-                  )
-                ) {
+                if (!game.characters.some((c) => c.characterId === selectedCharacterId)) {
                   await joinGame(gameId, selectedCharacterId);
                   console.log(chalk.green(`Joined game: ${game.name}`));
                 } else {
@@ -222,11 +240,7 @@ async function main() {
               break;
             }
             const table = new Table({
-              head: [
-                chalk.green('ID'),
-                chalk.green('Name'),
-                chalk.green('Players'),
-              ],
+              head: [chalk.green('ID'), chalk.green('Name'), chalk.green('Players')],
             });
             for (const game of games) {
               let characters = '';
@@ -264,20 +278,29 @@ main().catch((err) => {
   process.exit(1);
 });
 
+const charColors = [chalk.greenBright, chalk.cyanBright, chalk.magentaBright, chalk.blueBright];
+
 function drawMap(game) {
   for (let y = 0; y < game.roomHeight; y++) {
     let row = '';
     for (let x = 0; x < game.roomWidth; x++) {
       if (game.walls.some((wall) => wall.x === x && wall.y === y)) {
         row += chalk.rgb(160, 82, 45)('▒'); // Wall
-      } else if (game.characters.some((c) => c.x === x && c.y === y)) {
-        row += chalk.greenBright('𐦂'); // Character
-      } else if (game.treasures.some((t) => t.x === x && t.y === y)) {
-        row += chalk.yellowBright('𐦒'); // Treasure
-      } else if (game.monsters.some((m) => m.x === x && m.y === y)) {
-        row += chalk.redBright('𐦃'); // Monster
       } else {
-        row += ' '; // Empty space
+        // Check if any character is at this position
+        const charsHere = game.characters.filter((c) => c.x === x && c.y === y);
+        if (charsHere.length > 0) {
+          // Assign a different color for each character
+          charsHere.forEach((c, idx) => {
+            row += charColors[idx % charColors.length]('𐦂');
+          });
+        } else if (game.treasures.some((t) => t.x === x && t.y === y)) {
+          row += chalk.yellowBright('𐦒'); // Treasure
+        } else if (game.monsters.some((m) => m.x === x && m.y === y)) {
+          row += chalk.redBright('𐦃'); // Monster
+        } else {
+          row += ' '; // Empty space
+        }
       }
     }
     console.log(row);

@@ -10,15 +10,39 @@ Fortis Dungeon Master is a Typescript API which implements a dungeon style game 
 
 ## Features
 
-- Character creation and management
-- Dungeon exploration
+- Character creation
+- Map creation
 - Combat with monsters
-- Persistent data storage using [Lowdb](https://github.com/typicode/lowdb)
+- Treasure collection
 - Basic game mechanics and rules
+
+- Persistent data storage using [Lowdb](https://github.com/typicode/lowdb)
+  - Had some features that looked helpful for this project.
+  - JSON file based
+  - auto-in-memory for unit tests.
 - Simple RESTful API for interaction
-- Basic error handling and validation
-- Basic unit tests for core functionality
-- Basic logging for debugging and monitoring
+- Error handling and validation
+- Unit tests for core components
+  - Tests use built-in Node.js testing framework
+- Structured logging for debugging and monitoring
+  - Pretty logs for development
+- CLI client for testing and interaction
+  - CLI is rougher and not as polished as the API, but it allows for quick testing and interaction with the game server.
+
+## Features.next
+
+- Websocket API for realtime interactions
+  - DM story messages
+  - Visual updates as other players take actions
+- CLI needs Quality of Life improvements
+  - Using long UUID for everything is rough.
+  - Improve error handling and user feedback in the CLI.
+- Proper error classes, handle what errors clients see better
+- Game join codes: Allow players to join games using unique codes
+- Player management: Track which players are in which games (currently only the game knows)
+- Clean up API parameters. Query Param, Post Body, Path Param
+- API documentation: Generate OpenAPI documentation for the API endpoints
+- Observability: Metrics, tracing
 
 ## Design
 
@@ -29,6 +53,14 @@ The backend is built with Fastify and TypeScript and provides a RESTful API for 
 Data is stored and persisted with Lowdb, and TypeScript interfaces are used throughout to keep the code type safe.
 
 Each main feature, like character management, dungeon exploration, and combat, lives in its own module so the codebase is simple to extend and test.
+
+## Challenges
+
+- Am I building a real-time multiplayer game or a turn-based game?
+- How do we handle game state and persistence?
+- Player versus DM authentication and authorization.
+- Duplication of class data and db data structures.
+- Single PUT update call for game state.
 
 ## Technology Stack
 
@@ -58,36 +90,111 @@ Represents monsters in the game, including stats and behaviors.
 
 Represents treasures in the game, including properties and effects.
 
+## Data Diagrams
+
+```mermaid
+classDiagram
+  Game *-- Character
+  Game *-- Monster
+  Game *-- Treasure
+  Game *-- Wall
+  class Game {
+    gameId: UUID
+    name: string
+    characters: Character[]
+    monsters: Monster[]
+    treasures: Treasure[]
+    walls: Wall[]
+    roomHeight: number
+    roomWidth: number
+  }
+
+  class Character {
+    characterId: UUID
+    name: string
+    level: number
+    hp: number
+    xp: number
+    treasure: Map~string, number~
+    characterClass: string
+    Strength: number
+    Dexterity: number
+    Constitution: number
+    Intelligence: number
+    Wisdom: number
+    Charisma: number
+  }
+
+  class Monster {
+    monsterId: UUID
+    name: string
+    x: number
+    y: number
+    hp: number
+    level: number
+    Strength: number
+    Dexterity: number
+    Constitution: number
+    Intelligence: number
+    Wisdom: number
+    Charisma: number
+  }
+
+  class Treasure {
+    treasureId: UUID
+    name: string
+    amount: number
+    x: number
+    y: number
+  }
+
+  class Wall {
+      +x: number
+      +y: number
+  }
+```
+
 ## Usage
 
 To start playing Fortis Dungeon Master, follow these steps:
 
-1. Clone the repository:
+Clone the repository:
 
 ```bash
 git clone https://github.com/jarrodconnolly/fortis-dungeon-master.git
 cd fortis-dungeon-master
 ```
 
-1. Install dependencies:
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-1. Run the tests:
+Run the tests:
 
 ```bash
 npm test
 ```
 
-1. Start the server:
+Start the server:
 
 ```bash
 npm start
 ```
 
-1. Interact with the API using your favorite API client (Postman) or with the included CLI.
+Start the CLI client:
+
+```bash
+npm run client
+```
+
+OR
+
+Test with Postman:
+
+- Postman collection is available in the `postman` directory.
+- Import the collection and environment to test the API endpoints.
 
 ## Known Issues
 

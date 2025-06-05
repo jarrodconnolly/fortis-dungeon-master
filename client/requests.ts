@@ -36,6 +36,16 @@ async function getGames(): Promise<GameDB[]> {
   return response.json();
 }
 
+async function newGame(characterId: string) {
+  const response = await fetch(`${API_BASE_URL}/games?characterId=${characterId}`, {
+    method: 'POST',
+  });
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return response.json();
+}
+
 async function getGame(gameId: string) {
   const response = await fetch(`${API_BASE_URL}/games/${gameId}`);
   if (!response.ok) {
@@ -45,12 +55,9 @@ async function getGame(gameId: string) {
 }
 
 async function joinGame(gameId: string, characterId: string) {
-  const response = await fetch(
-    `${API_BASE_URL}/games/join?gameId=${gameId}&characterId=${characterId}`,
-    {
-      method: 'POST',
-    },
-  );
+  const response = await fetch(`${API_BASE_URL}/games/join?gameId=${gameId}&characterId=${characterId}`, {
+    method: 'POST',
+  });
   if (!response.ok) {
     throw new Error('Network response was not ok');
   }
@@ -69,12 +76,17 @@ async function ping(): Promise<boolean> {
   return true;
 }
 
-export {
-  ping,
-  getCharacters,
-  getCharacter,
-  generateCharacter,
-  getGames,
-  getGame,
-  joinGame,
-};
+async function moveCharacter(gameId: string, characterId: string, direction: 'up' | 'down' | 'left' | 'right') {
+  const response = await fetch(
+    `${API_BASE_URL}/games/${gameId}/move?characterId=${characterId}&direction=${direction}`,
+    {
+      method: 'POST',
+    },
+  );
+  if (!response.ok) {
+    throw new Error('Network response was not ok');
+  }
+  return response.json();
+}
+
+export { ping, getCharacters, getCharacter, generateCharacter, getGames, getGame, joinGame, newGame, moveCharacter };

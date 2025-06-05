@@ -28,7 +28,8 @@
       "quoteStyle": "single",
       "trailingCommas": "all",
       "lineEnding": "lf",
-      "semicolons": "always"
+      "semicolons": "always",
+      "lineWidth": 120
     }
   }
 }

@@ -2,7 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { UUID } from 'node:crypto';
 import { faker } from '@faker-js/faker';
 import type { CharacterDB } from './db.js';
-import { getCharacterById, getCharacters, saveCharacter } from './db.js';
+import { getCharacterById, getCharacters, saveCharacter, updateCharacter } from './db.js';
 import { logger } from './logger.js';
 
 const standardStatsArray = [15, 14, 13, 12, 10, 8];
@@ -62,9 +62,7 @@ class Character {
     };
   }
 
-  public static async getCharacter(
-    characterId: UUID,
-  ): Promise<Character | null> {
+  public static async getCharacter(characterId: UUID): Promise<Character | null> {
     const characterData = await getCharacterById(characterId);
     if (!characterData) {
       logger.error(`Character with ID ${characterId} not found`);
@@ -91,6 +89,13 @@ class Character {
     return characters;
   }
 
+  public static async updateCharacter(character: Character): Promise<Character> {
+    const characterData = character.toJSON();
+    await updateCharacter(characterData);
+    logger.info(`Character with ID ${character.characterId} updated successfully`);
+    return character;
+  }
+
   public static async saveCharacter(character: Character): Promise<void> {
     await saveCharacter(character.toJSON());
   }
@@ -98,9 +103,7 @@ class Character {
   public static async generateRandomCharacter(): Promise<Character> {
     const name = `${faker.person.firstName()} ${faker.person.lastName()}`;
     const level = Math.floor(Math.random() * 5) + 1;
-    const characterClass = Math.floor(
-      (Math.random() * Object.keys(CharacterClass).length) / 2,
-    ) as CharacterClass;
+    const characterClass = Math.floor((Math.random() * Object.keys(CharacterClass).length) / 2) as CharacterClass;
 
     const character = new Character();
     character.name = name;

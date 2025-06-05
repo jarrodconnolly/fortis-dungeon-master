@@ -43,17 +43,14 @@ async function characters(fastify: FastifyInstance) {
     return character;
   });
 
-  fastify.get<{ Params: characterRequest }>(
-    '/characters/:characterId',
-    async (req, reply) => {
-      const characterId = req.params.characterId as UUID;
-      const character = Character.getCharacter(characterId);
-      if (!character) {
-        return reply.status(404).send({ error: 'Character not found' });
-      }
-      return character;
-    },
-  );
+  fastify.get<{ Params: characterRequest }>('/characters/:characterId', async (req, reply) => {
+    const characterId = req.params.characterId as UUID;
+    const character = Character.getCharacter(characterId);
+    if (!character) {
+      return reply.status(404).send({ error: 'Character not found' });
+    }
+    return character;
+  });
 
   fastify.get('/characters', async (req, reply) => {
     const characters = Character.getCharacters();
