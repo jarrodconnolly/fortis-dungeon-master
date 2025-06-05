@@ -1,0 +1,27 @@
+{
+	"id": "19396614-56b9-4a85-8907-35ffe28e2cbe",
+	"values": [
+		{
+			"key": "host",
+			"value": "127.0.0.1",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "port",
+			"value": "3000",
+			"type": "default",
+			"enabled": true
+		},
+		{
+			"key": "scheme",
+			"value": "http",
+			"type": "default",
+			"enabled": true
+		}
+	],
+	"name": "Globals",
+	"_postman_variable_scope": "globals",
+	"_postman_exported_at": "2025-06-05T04:43:04.053Z",
+	"_postman_exported_using": "Postman/11.47.4"
+}

@@ -1,0 +1,340 @@
+{
+	"info": {
+		"_postman_id": "e4715244-d58c-4968-8461-6f202f054e77",
+		"name": "Dungeon Master API",
+		"description": "Test API calls for the Fortis Dungeon Master game.",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "9874426"
+	},
+	"item": [
+		{
+			"name": "Characters",
+			"item": [
+				{
+					"name": "Create new Character",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Set current characterId\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    const characterId = jsonData.characterId;\r",
+									"    pm.collectionVariables.set(\"characterId\", characterId);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}:{{port}}/api/characters",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"characters"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Character",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}:{{port}}/api/characters/{{characterId}}",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"characters",
+								"{{characterId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Characters",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}:{{port}}/api/characters",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"characters"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Games",
+			"item": [
+				{
+					"name": "Create new Game",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Set current gameId\", function () {\r",
+									"    const jsonData = pm.response.json();\r",
+									"    const gameId = jsonData.gameId;\r",
+									"    pm.collectionVariables.set(\"gameId\", gameId);\r",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}:{{port}}/api/games?characterId={{characterId}}",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"games"
+							],
+							"query": [
+								{
+									"key": "characterId",
+									"value": "{{characterId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Join Game",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}:{{port}}/api/games/join?characterId={{characterId}}&gameId={{gameId}}",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"games",
+								"join"
+							],
+							"query": [
+								{
+									"key": "characterId",
+									"value": "{{characterId}}"
+								},
+								{
+									"key": "gameId",
+									"value": "{{gameId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Move",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}:{{port}}/api/games/{{gameId}}/move?characterId={{characterId}}&direction",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"games",
+								"{{gameId}}",
+								"move"
+							],
+							"query": [
+								{
+									"key": "characterId",
+									"value": "{{characterId}}"
+								},
+								{
+									"key": "direction",
+									"value": null
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Game",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}:{{port}}/api/games/{{gameId}}",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"games",
+								"{{gameId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Games",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}:{{port}}/api/games",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"games"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Monsters",
+			"item": [
+				{
+					"name": "List Monsters",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}:{{port}}/api/monsters?gameId={{gameId}}",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"monsters"
+							],
+							"query": [
+								{
+									"key": "gameId",
+									"value": "{{gameId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Treasures",
+			"item": [
+				{
+					"name": "List Treasures",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{scheme}}://{{host}}:{{port}}/api/treasures?gameId={{gameId}}",
+							"protocol": "{{scheme}}",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"api",
+								"treasures"
+							],
+							"query": [
+								{
+									"key": "gameId",
+									"value": "{{gameId}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "characterId",
+			"value": ""
+		},
+		{
+			"key": "gameId",
+			"value": ""
+		}
+	]
+}

@@ -28,6 +28,7 @@ Fortis Dungeon Master is a Typescript API which implements a dungeon style game 
   - Pretty logs for development
 - CLI client for testing and interaction
   - CLI is rougher and not as polished as the API, but it allows for quick testing and interaction with the game server.
+- Postman collection for API testing
 
 ## Features.next
 
@@ -195,6 +196,12 @@ Test with Postman:
 
 - Postman collection is available in the `postman` directory.
 - Import the collection and environment to test the API endpoints.
+
+## Play the Game
+
+To play the game, you can use the CLI client or the RESTful API. The CLI client provides a simple interface to create characters, explore dungeons, and engage in combat.
+
+`help` command in the CLI will show you the available commands and how to use them.
 
 ## Known Issues
 
